@@ -13,9 +13,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_UserMainWindow(object):
     def setupUi(self, UserMainWindow):
         UserMainWindow.setObjectName("UserMainWindow")
-        UserMainWindow.resize(320, 450)
-        UserMainWindow.setMinimumSize(QtCore.QSize(320, 450))
-        UserMainWindow.setMaximumSize(QtCore.QSize(320, 450))
+        UserMainWindow.resize(320, 480)
+        UserMainWindow.setMinimumSize(QtCore.QSize(320, 480))
+        UserMainWindow.setMaximumSize(QtCore.QSize(320, 480))
         UserMainWindow.setAcceptDrops(False)
         UserMainWindow.setAutoFillBackground(False)
         UserMainWindow.setStyleSheet("QWidget {\n"
@@ -56,19 +56,18 @@ class Ui_UserMainWindow(object):
         self.textEdit.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.textEdit.setMouseTracking(True)
         self.textEdit.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.textEdit.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.textEdit.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.textEdit.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.textEdit.setReadOnly(True)
-        self.textEdit.setAcceptRichText(True)
         self.textEdit.setObjectName("textEdit")
         self.textEdit_2 = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_2.setGeometry(QtCore.QRect(-10, 180, 341, 71))
         self.textEdit_2.setFocusPolicy(QtCore.Qt.NoFocus)
         self.textEdit_2.setReadOnly(True)
-        self.textEdit_2.setAcceptRichText(True)
         self.textEdit_2.setObjectName("textEdit_2")
         UserMainWindow.setCentralWidget(self.centralwidget)
+        self.actionCut = QtWidgets.QAction(UserMainWindow)
+        self.actionCut.setObjectName("actionCut")
 
         self.retranslateUi(UserMainWindow)
         QtCore.QMetaObject.connectSlotsByName(UserMainWindow)
@@ -88,3 +87,4 @@ class Ui_UserMainWindow(object):
 "</style></head><body style=\" font-family:\'Arial\',\'Helvetica\',\'sans-serif\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:18pt; color:#ffffff;\">Press Button Below to</span></p>\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:18pt; color:#ffffff;\">Generate Priority Ticket</span></p></body></html>"))
+        self.actionCut.setText(_translate("UserMainWindow", "Cut"))
