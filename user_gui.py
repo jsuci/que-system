@@ -15,13 +15,42 @@ class UserWindow(QMainWindow, Ui_UserMainWindow):
 
     def __init__(self):
         super(UserWindow, self).__init__()
-        self.setupUi(self)
-        self.count = 0
-        self.pushButton.clicked.connect(self.onButtonClick)
 
-    def onButtonClick(self):
-        # Ticket counter increment
+        # Styling UserWindow
+        self.setupUi(self)
+        self.setWindowTitle("IT Chairman's Ofc. Que System")
+        te2_font = QFont()
+        te2_font.setLetterSpacing(QFont.AbsoluteSpacing, 1.3)
+        self.textEdit_2.setFont(te2_font)
+
+        # pushButton functions
+        self.count = 0
+        self.pushButton.clicked.connect(
+            lambda x: self.onButtonClick("clear"))
+        self.pushButton_2.clicked.connect(
+            lambda x: self.onButtonClick("eval"))
+        self.pushButton_3.clicked.connect(
+            lambda x: self.onButtonClick("add_drop"))
+        self.pushButton_4.clicked.connect(
+            lambda x: self.onButtonClick("others"))
+
+        with open("ticket.log", "w") as fi:
+            fi.write("")
+
+    def onButtonClick(self, name):
+        # Generate ticket code
         self.count += 1
+
+        if name == "clear":
+            code = "CL"
+        elif name == "eval":
+            code = "EV"
+        elif name == "add_drop":
+            code = "AD"
+        else:
+            code = "OT"
+
+        ticket = f"{self.count:03d}{code}"
 
         # Create new QWidget instance
         self.window = QWidget()
@@ -35,7 +64,8 @@ class UserWindow(QMainWindow, Ui_UserMainWindow):
         # Customizing QWidget window
         self.window.setWindowModality(2)
         self.window.setWindowFlags(Qt.WindowCloseButtonHint)
-        self.window.setWindowTitle(f"Priority Ticket #: {self.count:04d}")
+        self.window.setWindowTitle(
+            f"Ticket Code: {ticket}")
         self.window.setStyleSheet(
             """
             QWidget {
@@ -55,29 +85,30 @@ class UserWindow(QMainWindow, Ui_UserMainWindow):
         font_2.setLetterSpacing(QFont.AbsoluteSpacing, 1.5)
 
         # Creating and customizing lable_1
-        label_1 = QLabel("Your Ticket #:")
+        label_1 = QLabel("Your Ticket Code:")
         label_1.setAlignment(Qt.AlignHCenter | Qt.AlignCenter)
         label_1.setFont(font_1)
         label_1.setStyleSheet(
             """
             QLabel {
                 border: 0px solid black;
-                font-size: 25px;
-                color: rgb(45, 45, 45);
+                font-size: 20px;
+                color: rgb(65, 65, 65);
                 margin: 30px 0px 0px 0px;
+                font-weight: bold;
             }
             """
         )
 
         # Creating and customizing label_2
-        label_2 = QLabel(f"{self.count:04d}")
+        label_2 = QLabel(f"{ticket}")
         label_2.setFont(font_2)
         label_2.setAlignment(Qt.AlignHCenter | Qt.AlignCenter)
         label_2.setStyleSheet(
             """
             QLabel {
                 border: 0px solid black;
-                font-size: 70px;
+                font-size: 50px;
                 font-weight: 900;
                 color: rgb(0, 0, 0);
                 margin: 10px 0px 60px 0px;
@@ -88,6 +119,10 @@ class UserWindow(QMainWindow, Ui_UserMainWindow):
         self.window.layout.addWidget(label_1)
         self.window.layout.addWidget(label_2)
         self.window.setLayout(self.window.layout)
+
+        # Exporting ticket code
+        with open("ticket.log", "a") as fo:
+            fo.write(f"({ticket}, {name}),")
 
         # Display QWidget
         self.window.show()
