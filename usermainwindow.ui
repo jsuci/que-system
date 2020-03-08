@@ -68,7 +68,7 @@ QTextEdit {
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-	background:rgb(211, 141, 0);
+	background: rgb(211, 141, 0);
 	border-radius: 8px;
 	font-size: 20px;
 	font-weight: normal;

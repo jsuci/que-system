@@ -11,17 +11,20 @@ from usermainwindow import Ui_UserMainWindow
 from sys import argv
 
 
-class UserWindow(QMainWindow, Ui_UserMainWindow):
+class MainWindow(QMainWindow, Ui_UserMainWindow):
 
     def __init__(self):
-        super(UserWindow, self).__init__()
+        super(MainWindow, self).__init__()
 
-        # Styling UserWindow
+        # Styling MainWindow
         self.setupUi(self)
         self.setWindowTitle("IT Chairman's Ofc. Que System")
         te2_font = QFont()
         te2_font.setLetterSpacing(QFont.AbsoluteSpacing, 1.3)
         self.textEdit_2.setFont(te2_font)
+        self.move(180, 70)
+        # Current position of MainWindow
+        # print(self.mapToGlobal(self.pos()))
 
         # pushButton functions
         self.count = 0
@@ -36,6 +39,8 @@ class UserWindow(QMainWindow, Ui_UserMainWindow):
 
         with open("ticket.log", "w") as fi:
             fi.write("")
+
+        print(self.x(), self.width(), self.y(), self.height())
 
     def onButtonClick(self, name):
         # Generate ticket code
@@ -55,11 +60,11 @@ class UserWindow(QMainWindow, Ui_UserMainWindow):
         # Create new QWidget instance
         self.window = QWidget()
 
-        # Position QWidget relative to parent window
-        self.window.resize(280, 160)
+        # Position PopUp QWidget relative to parent window
+        self.window.resize(264, 230)
         mid_x = ((self.width() - self.window.width()) // 2)
         mid_y = ((self.height() - self.window.height()) // 2)
-        self.window.move(self.mapToParent(QPoint(mid_x, mid_y - 30)))
+        self.window.move(self.mapToParent(QPoint(mid_x, mid_y + 60)))
 
         # Customizing QWidget window
         self.window.setWindowModality(2)
@@ -122,7 +127,7 @@ class UserWindow(QMainWindow, Ui_UserMainWindow):
 
         # Exporting ticket code
         with open("ticket.log", "a") as fo:
-            fo.write(f"({ticket}, {name}),")
+            fo.write(f"{ticket},{name}\n")
 
         # Display QWidget
         self.window.show()
@@ -131,7 +136,7 @@ class UserWindow(QMainWindow, Ui_UserMainWindow):
 def main():
     # Preparing the main window
     app = QApplication(argv)
-    window = UserWindow()
+    window = MainWindow()
 
     # Launching the main window
     window.show()
