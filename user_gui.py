@@ -40,7 +40,7 @@ class MainWindow(QMainWindow, Ui_UserMainWindow):
         with open("ticket.log", "w") as fi:
             fi.write("")
 
-        print(self.x(), self.width(), self.y(), self.height())
+        # print(self.x(), self.width(), self.y(), self.height())
 
     def onButtonClick(self, name):
         # Generate ticket code
