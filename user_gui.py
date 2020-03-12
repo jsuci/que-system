@@ -61,7 +61,7 @@ class MainWindow(QMainWindow, Ui_UserMainWindow):
         self.window = QWidget()
 
         # Position PopUp QWidget relative to parent window
-        self.window.resize(264, 230)
+        self.window.resize(260, 260)
         mid_x = ((self.width() - self.window.width()) // 2)
         mid_y = ((self.height() - self.window.height()) // 2)
         self.window.move(self.mapToParent(QPoint(mid_x, mid_y + 60)))

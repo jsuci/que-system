@@ -13,9 +13,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_UserMainWindow(object):
     def setupUi(self, UserMainWindow):
         UserMainWindow.setObjectName("UserMainWindow")
-        UserMainWindow.resize(320, 450)
-        UserMainWindow.setMinimumSize(QtCore.QSize(320, 450))
-        UserMainWindow.setMaximumSize(QtCore.QSize(320, 450))
+        UserMainWindow.resize(320, 470)
+        UserMainWindow.setMinimumSize(QtCore.QSize(320, 470))
+        UserMainWindow.setMaximumSize(QtCore.QSize(320, 470))
         UserMainWindow.setAcceptDrops(False)
         UserMainWindow.setAutoFillBackground(False)
         UserMainWindow.setStyleSheet("QWidget {\n"
@@ -38,7 +38,7 @@ class Ui_UserMainWindow(object):
         self.pushButton.setMaximumSize(QtCore.QSize(16777215, 60))
         self.pushButton.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.pushButton.setStyleSheet("QPushButton {\n"
-"    background:rgb(211, 141, 0);\n"
+"    background: rgb(211, 141, 0);\n"
 "    border-radius: 8px;\n"
 "    font-size: 20px;\n"
 "    font-weight: normal;\n"
