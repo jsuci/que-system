@@ -1,49 +1,35 @@
 from PyQt5.QtWidgets import (
-    QMainWindow,
-    QApplication,
     QWidget,
+    QApplication,
     QLabel,
-    QVBoxLayout
+    QPushButton
 )
-from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, QPoint
-from usermainwindow import Ui_UserMainWindow
+from PyQt5.QtGui import QFont
 from sys import argv
 
 
-class MainWindow(QMainWindow, Ui_UserMainWindow):
+class MainWindow(QWidget):
 
     def __init__(self):
         super(MainWindow, self).__init__()
-
-        # Styling MainWindow
-        self.setupUi(self)
-        self.setWindowTitle("IT Chairman's Ofc. Que System")
-        te2_font = QFont()
-        te2_font.setLetterSpacing(QFont.AbsoluteSpacing, 1.3)
-        self.textEdit_2.setFont(te2_font)
-        self.move(180, 70)
-        # Current position of MainWindow
-        # print(self.mapToGlobal(self.pos()))
-
-        # pushButton functions
+        self.displayWindow()
+        self.btn_a.clicked.connect(lambda x: self.onClickButton("clear"))
+        self.btn_b.clicked.connect(lambda x: self.onClickButton("eval"))
+        self.btn_c.clicked.connect(lambda x: self.onClickButton("add_drop"))
+        self.btn_d.clicked.connect(lambda x: self.onClickButton("others"))
         self.count = 0
-        self.pushButton.clicked.connect(
-            lambda x: self.onButtonClick("clear"))
-        self.pushButton_2.clicked.connect(
-            lambda x: self.onButtonClick("eval"))
-        self.pushButton_3.clicked.connect(
-            lambda x: self.onButtonClick("add_drop"))
-        self.pushButton_4.clicked.connect(
-            lambda x: self.onButtonClick("others"))
 
         with open("ticket.log", "w") as fi:
             fi.write("")
 
-        # print(self.x(), self.width(), self.y(), self.height())
+    def midpoint(self, obj_a, obj_b):
+        x = (obj_a.width() // 2) - (obj_b.width() // 2)
+        y = (obj_a.height() // 2) - (obj_b.height() // 2)
 
-    def onButtonClick(self, name):
-        # Generate ticket code
+        return x, y
+
+    def onClickButton(self, name):
         self.count += 1
 
         if name == "clear":
@@ -55,93 +41,144 @@ class MainWindow(QMainWindow, Ui_UserMainWindow):
         else:
             code = "OT"
 
-        ticket = f"{self.count:03d}{code}"
-
-        # Create new QWidget instance
-        self.window = QWidget()
-
-        # Position PopUp QWidget relative to parent window
-        self.window.resize(260, 260)
-        mid_x = ((self.width() - self.window.width()) // 2)
-        mid_y = ((self.height() - self.window.height()) // 2)
-        self.window.move(self.mapToParent(QPoint(mid_x, mid_y + 60)))
-
-        # Customizing QWidget window
-        self.window.setWindowModality(2)
-        self.window.setWindowFlags(Qt.WindowCloseButtonHint)
-        self.window.setWindowTitle(
-            f"Ticket Code: {ticket}")
-        self.window.setStyleSheet(
-            """
-            QWidget {
-                background: rgb(255, 255, 255);
-            }
-            """
-        )
-
-        # Add contents to new QWidget
-        self.window.layout = QVBoxLayout()
-
-        # New font object
-        font_1 = QFont()
-        font_1.setLetterSpacing(QFont.AbsoluteSpacing, 0.0)
-
-        font_2 = QFont()
-        font_2.setLetterSpacing(QFont.AbsoluteSpacing, 1.5)
-
-        # Creating and customizing lable_1
-        label_1 = QLabel("Your Ticket Code:")
-        label_1.setAlignment(Qt.AlignHCenter | Qt.AlignCenter)
-        label_1.setFont(font_1)
-        label_1.setStyleSheet(
-            """
-            QLabel {
-                border: 0px solid black;
-                font-size: 20px;
-                color: rgb(65, 65, 65);
-                margin: 30px 0px 0px 0px;
-                font-weight: bold;
-            }
-            """
-        )
-
-        # Creating and customizing label_2
-        label_2 = QLabel(f"{ticket}")
-        label_2.setFont(font_2)
-        label_2.setAlignment(Qt.AlignHCenter | Qt.AlignCenter)
-        label_2.setStyleSheet(
-            """
-            QLabel {
-                border: 0px solid black;
-                font-size: 50px;
-                font-weight: 900;
-                color: rgb(0, 0, 0);
-                margin: 10px 0px 60px 0px;
-            }
-            """
-        )
-        # Add all labels to current QWidget layout
-        self.window.layout.addWidget(label_1)
-        self.window.layout.addWidget(label_2)
-        self.window.setLayout(self.window.layout)
+        self.ticket = f"{self.count:03d}{code}"
+        self.popWindow(self.ticket)
 
         # Exporting ticket code
         with open("ticket.log", "a") as fo:
-            fo.write(f"{ticket},{name}\n")
+            fo.write(f"{self.ticket},{name}\n")
 
-        # Display QWidget
-        self.window.show()
+    def createButton(self, name, pos_y):
+        btn = QPushButton(name, self)
+        btn.setFixedSize(self.ui_width - 50, 50)
+        btn.setCursor(Qt.PointingHandCursor)
+        btn_x, btn_y = self.midpoint(self, btn)
+        btn.move(btn_x, pos_y)
+        btn.setStyleSheet(
+            """
+            QPushButton {
+                background: rgba(211, 141, 0, 1);
+                font-size: 20px;
+                font-weight: normal;
+                border-radius: 8px;
+            }
+            QPushButton::hover {
+                background: rgba(255, 227, 15, 1);
+            }
+            """
+        )
+
+        return btn
+
+    def popWindow(self, ticket):
+
+        self.pw = QWidget()
+        self.pw.setWindowModality(2)
+        self.pw.setWindowFlags(Qt.WindowCloseButtonHint)
+        self.pw.setFixedSize(250, 190)
+        self.pw.setWindowTitle(f"Ticket Code: {ticket}")
+        pw_x, pw_y = self.midpoint(self, self.pw)
+        self.pw.move(self.mapToParent(QPoint(pw_x - 1, pw_y + 30)))
+        self.pw.setStyleSheet(
+            """
+            QWidget {
+                background: rgba(255, 255, 255, 1);
+            }
+            """
+        )
+
+        pw_label_a = QLabel("Your Ticket Code:", self.pw)
+        pw_label_a.setFixedSize(173, 38)
+        pw_lx, pw_ly = self.midpoint(self.pw, pw_label_a)
+        pw_label_a.move(pw_lx, 30)
+        pw_label_a.setStyleSheet(
+            """
+            QLabel {
+                color: #333333;
+                font-weight: bold;
+                font-size: 20px;
+            }
+            """
+        )
+
+        pw_label_b = QLabel(f"{ticket}", self.pw)
+        pw_label_b.setFixedSize(220, 60)
+        pw_bx, pw_by = self.midpoint(self.pw, pw_label_b)
+        pw_label_b.move(pw_bx, pw_by)
+        pw_label_b.setFont(self.font_b)
+        pw_label_b.setStyleSheet(
+            """
+            QLabel {
+                color: #000000;
+                font-weight: bold;
+                font-size: 55px;
+                border: 1px solid #ffffff;
+            }
+            """
+        )
+
+        self.pw.show()
+
+    def displayWindow(self):
+        self.ui_width = 320
+        self.ui_height = 450
+        self.move(180, 70)
+        self.setFixedSize(self.ui_width, self.ui_height)
+        self.setWindowTitle("IT Chairman's Que System")
+        self.setStyleSheet(
+            """
+            QWidget {
+                background: rgba(0, 0, 72, 1);
+            }
+            """
+        )
+
+        self.font_a = QFont()
+        self.font_a.setLetterSpacing(QFont.AbsoluteSpacing, 10)
+
+        self.font_b = QFont()
+        self.font_b.setLetterSpacing(QFont.AbsoluteSpacing, 3.0)
+
+        label_a = QLabel("WELCOME", self)
+        label_a.setGeometry(5, 10, self.ui_width, 40)
+        label_a.setFont(self.font_a)
+        label_a.setStyleSheet(
+            """
+            QLabel {
+                qproperty-alignment: AlignCenter;
+                color: #ffffff;
+                font-size: 40px;
+                font-weight: 600;
+            }
+            """
+        )
+
+        label_b = QLabel("Please select any\noption below", self)
+        label_b.setGeometry(0, 70, self.ui_width, 60)
+        label_b.setFont(self.font_b)
+        label_b.setStyleSheet(
+            """
+            QLabel {
+                qproperty-alignment: AlignCenter;
+                color: #ffffff;
+                font-size: 22px;
+                font-weight: 400;
+            }
+            """
+        )
+
+        self.btn_a = self.createButton("Clearance", 150)
+        self.btn_b = self.createButton("Evaluation", 215)
+        self.btn_c = self.createButton("Adding / Dropping", 280)
+        self.btn_d = self.createButton("Others", 345)
 
 
 def main():
-    # Preparing the main window
     app = QApplication(argv)
-    window = MainWindow()
 
-    # Launching the main window
-    window.show()
+    main_window = MainWindow()
+    main_window.show()
 
-    # Prevent from closing
     app.exec_()
 
 

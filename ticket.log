@@ -1,5 +1,5 @@
 001EV,eval
-002CL,clear
-003EV,eval
-004AD,add_drop
-005OT,others
+002EV,eval
+003AD,add_drop
+004OT,others
+005CL,clear

@@ -173,7 +173,10 @@ class MainWindow(QWidget):
         )
 
         self.combo = QComboBox(self.w2)
-        self.combo.addItems(["Default", "Clearance", "Evaluation"])
+        self.combo.addItems(["Default", "Clearance",
+                             "Evaluation", "Adding - Dropping",
+                             "Other Concerns"])
+
         self.combo.setGeometry(220, 40, 230, 23)
 
         self.combo.setStyleSheet(
@@ -183,7 +186,19 @@ class MainWindow(QWidget):
                 background: rgba(255, 255, 255, 1);
                 font-size: 13px;
             }
+            QComboBox::item {
+                background: #ffffff;
+                border-top: 1px solid #dddddd;
+                height: 20px;
+            }
 
+            QComboBox::item::selected {
+                background: rgba(200, 200, 200, 1);
+            }
+
+            QComboBox:on {
+                background: green;
+            }
             """
         )
 
