@@ -35,10 +35,13 @@ class MainWindow(QWidget):
         self.threadpool = QThreadPool()
         self.displayWindow()
         self.callWindow()
-        self.combo.activated.connect(lambda x: self.priority(x))
+        self.combo.activated.connect(lambda x: self.priorityStatus(x))
+        self.df_index = 0
+        self.cl_index = 0
+        self.ev_index = 0
+        self.ad_index = 0
+        self.ot_index = 0
         self.curr_prio = 0
-        self.df_count = 0
-        self.cl_count = 0
         self.called = []
 
     def displayWindow(self):
@@ -213,7 +216,7 @@ class MainWindow(QWidget):
         self.label_notif = QLabel(
             "* Ticket Status *", self.w2)
         self.label_notif.setFont(self.font2)
-        self.label_notif.setFixedWidth(300)
+        self.label_notif.setFixedWidth(330)
         notif_x = (self.w2.width() // 2) - (self.label_notif.width() // 2)
         self.label_notif.move(notif_x, 100)
         self.label_notif.setAlignment(Qt.AlignCenter)
@@ -232,11 +235,17 @@ class MainWindow(QWidget):
         worker = Worker(self.magic)
         self.threadpool.start(worker)
 
-    def priority(self, s):
+    def priorityStatus(self, s):
         if s == 0:
             self.label_notif.setText("* Processing default tickets *")
         elif s == 1:
             self.label_notif.setText("* Processing clearance tickets *")
+        elif s == 2:
+            self.label_notif.setText("* Processing evaluation tickets *")
+        elif s == 3:
+            self.label_notif.setText("* Processing add - drop tickets *")
+        else:
+            self.label_notif.setText("* Processing other tickets *")
 
         self.curr_prio = s
 
@@ -254,6 +263,73 @@ class MainWindow(QWidget):
         else:
             self.label4.setText("Other concerns")
 
+    def processPrio(self):
+
+        def processTickets(f_label, p_label, index):
+            tickets = [x for x in self.all_tickets if x[1] == f_label]
+
+            if index < len(tickets):
+                xx_ticket = tickets[index]
+
+                if xx_ticket not in self.called:
+                    self.showCurrentTicket(xx_ticket)
+                    self.called.append(xx_ticket)
+                else:
+                    self.label_notif.setText(f"{xx_ticket} already called")
+
+                return 1
+            else:
+                self.label_notif.setText(f"* {p_label} tickets done. ")
+                return 0
+
+        self.priorityStatus(self.curr_prio)
+
+        if self.curr_prio == 0:
+            f_label = None
+            p_label = "Default"
+
+            if self.df_index < len(self.all_tickets):
+                df_ticket = self.all_tickets[self.df_index]
+
+                if df_ticket not in self.called:
+                    self.showCurrentTicket(df_ticket)
+                    self.called.append(df_ticket)
+                else:
+                    self.label_notif.setText(f"{df_ticket} already called")
+
+                self.df_index += 1
+            else:
+                self.label_notif.setText(f"{p_label} tickets done.")
+
+        elif self.curr_prio == 1:
+            f_label = "clear"
+            p_label = "Clearance"
+
+            to_add = processTickets(f_label, p_label, self.cl_index)
+            self.cl_index += to_add
+
+        elif self.curr_prio == 2:
+            f_label = "eval"
+            p_label = "Evaluation"
+
+            to_add = processTickets(f_label, p_label, self.ev_index)
+            self.ev_index += to_add
+
+        elif self.curr_prio == 3:
+            f_label = "add_drop"
+            p_label = "Add - Drop"
+
+            to_add = processTickets(f_label, p_label, self.ad_index)
+            self.ad_index += to_add
+
+        else:
+            f_label = "others"
+            p_label = "Other Concerns"
+            ot_tickets = [x for x in self.all_tickets if x[1] == f_label]
+
+            to_add = processTickets(f_label, p_label, self.ot_index)
+            self.ot_index += to_add
+
     def magic(self):
 
         # Generating list of tickets from file including new ones
@@ -264,45 +340,7 @@ class MainWindow(QWidget):
                 if entry != "":
                     self.all_tickets.append(tuple(entry.strip().split(",")))
 
-        # self.all_tickets = self.all_tickets[self.df_count:]
-
-        if len(self.all_tickets[self.df_count:]) != 0:
-            if self.curr_prio == 0:
-                if self.df_count not in self.called:
-
-                    self.showCurrentTicket(self.all_tickets[self.df_count])
-                    self.priority(0)
-                else:
-                    self.label_notif.setText(
-                        f"* {self.all_tickets[self.df_count][0]} "
-                        f"Already Called *"
-                    )
-
-                self.df_count += 1
-                self.cl_count = 0
-
-            elif self.curr_prio == 1:
-                self.cl_tickets = [
-                    x for x in self.all_tickets[self.df_count:]
-                    if x[1] == "clear"]
-
-                if self.cl_count != len(self.cl_tickets):
-                    self.showCurrentTicket(self.cl_tickets[self.cl_count])
-                    self.called.append(self.all_tickets.index(
-                        self.cl_tickets[self.cl_count]))
-
-                else:
-                    self.label_notif.setText(
-                        f"* Clearance tickets done. "
-                        f"Processing default tickets. *"
-                    )
-
-                    self.curr_prio = 0
-
-                self.cl_count += 1
-
-        else:
-            self.label_notif.setText("* All tickets are called *")
+        self.processPrio()
 
 
 def main():
