@@ -123,6 +123,7 @@ class MainWindow(QWidget):
         self.ui_width = 320
         self.ui_height = 450
         self.move(180, 70)
+        self.setWindowFlags(Qt.WindowSystemMenuHint)
         self.setFixedSize(self.ui_width, self.ui_height)
         self.setWindowTitle("IT Chairman's Que System")
         self.setStyleSheet(

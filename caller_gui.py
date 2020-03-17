@@ -35,13 +35,16 @@ class MainWindow(QWidget):
         self.threadpool = QThreadPool()
         self.displayWindow()
         self.callWindow()
+        self.combo.activated.connect(lambda x: self.priority(x))
+        self.curr_prio = 0
+        self.df_count = 0
+        self.cl_count = 0
+        self.called = []
 
     def displayWindow(self):
 
-        self.count = 0
-
         self.setWindowTitle("Next Ticket Window")
-        self.setGeometry(520, 100, 550, 280)
+        self.setGeometry(520, 100, 550, 260)
         self.setStyleSheet(
             """
             QWidget {
@@ -137,10 +140,11 @@ class MainWindow(QWidget):
             """
         )
         self.w2.setWindowTitle("Caller Window")
-        self.w2.setGeometry(520, 420, 550, 150)
+        self.w2.setGeometry(520, 400, 550, 150)
 
+        # Call next button
         self.call_button = QPushButton("Call Next Ticket", self.w2)
-        self.call_button.setGeometry(130, 70, 350, 45)
+        self.call_button.setGeometry(130, 50, 350, 45)
         self.call_button.clicked.connect(self.onButtonClick)
         self.call_button.setFont(self.font1)
         self.call_button.setStyleSheet(
@@ -159,9 +163,10 @@ class MainWindow(QWidget):
         mid_btn = (self.w2.width() - self.call_button.width()) // 2
         self.call_button.move(mid_btn, self.call_button.y())
 
+        # Dropdown menu
         self.cb_label = QLabel("Set Priority", self.w2)
         self.cb_label.setFont(self.font1)
-        self.cb_label.move(100, 40)
+        self.cb_label.move(100, 20)
         self.cb_label.setStyleSheet(
             """
             QLabel {
@@ -177,7 +182,7 @@ class MainWindow(QWidget):
                              "Evaluation", "Adding - Dropping",
                              "Other Concerns"])
 
-        self.combo.setGeometry(220, 40, 230, 23)
+        self.combo.setGeometry(220, 20, 230, 23)
 
         self.combo.setStyleSheet(
             """
@@ -202,36 +207,102 @@ class MainWindow(QWidget):
             """
         )
 
+        # Notification
+        self.font2 = QFont()
+        self.font2.setLetterSpacing(QFont.AbsoluteSpacing, 1.4)
+        self.label_notif = QLabel(
+            "* Ticket Status *", self.w2)
+        self.label_notif.setFont(self.font2)
+        self.label_notif.setFixedWidth(300)
+        notif_x = (self.w2.width() // 2) - (self.label_notif.width() // 2)
+        self.label_notif.move(notif_x, 100)
+        self.label_notif.setAlignment(Qt.AlignCenter)
+        self.label_notif.setStyleSheet(
+            """
+            QLabel {
+                font-size: 10px;
+                color: #ffffff;
+            }
+            """
+        )
+
         self.w2.show()
 
     def onButtonClick(self):
         worker = Worker(self.magic)
         self.threadpool.start(worker)
 
+    def priority(self, s):
+        if s == 0:
+            self.label_notif.setText("* Processing default tickets *")
+        elif s == 1:
+            self.label_notif.setText("* Processing clearance tickets *")
+
+        self.curr_prio = s
+
+    def showCurrentTicket(self, ticket):
+        self.label2.setText(f"{ticket[0]}")
+        self.setWindowTitle(
+            f"Next Ticket Code: {ticket[0]}")
+
+        if ticket[1] == "clear":
+            self.label4.setText("Clearance")
+        elif ticket[1] == "eval":
+            self.label4.setText("Evaluation")
+        elif ticket[1] == "add_drop":
+            self.label4.setText("Adding / Dropping")
+        else:
+            self.label4.setText("Other concerns")
+
     def magic(self):
-        self.tickets = []
+
+        # Generating list of tickets from file including new ones
+        self.all_tickets = []
+
         with open("ticket.log", "r") as fi:
             for entry in fi:
                 if entry != "":
-                    self.tickets.append(tuple(entry.strip().split(",")))
+                    self.all_tickets.append(tuple(entry.strip().split(",")))
 
-        self.ticket_len = len(self.tickets)
+        # self.all_tickets = self.all_tickets[self.df_count:]
 
-        if self.count != self.ticket_len:
-            self.label2.setText(f"{self.tickets[self.count][0]}")
-            self.setWindowTitle(
-                f"Next Ticket Code: {self.tickets[self.count][0]}")
+        if len(self.all_tickets[self.df_count:]) != 0:
+            if self.curr_prio == 0:
+                if self.df_count not in self.called:
 
-            if self.tickets[self.count][1] == "clear":
-                self.label4.setText("Clearance")
-            elif self.tickets[self.count][1] == "eval":
-                self.label4.setText("Evaluation")
-            elif self.tickets[self.count][1] == "add_drop":
-                self.label4.setText("Adding / Dropping")
-            else:
-                self.label4.setText("Other concerns")
+                    self.showCurrentTicket(self.all_tickets[self.df_count])
+                    self.priority(0)
+                else:
+                    self.label_notif.setText(
+                        f"* {self.all_tickets[self.df_count][0]} "
+                        f"Already Called *"
+                    )
 
-            self.count += 1
+                self.df_count += 1
+                self.cl_count = 0
+
+            elif self.curr_prio == 1:
+                self.cl_tickets = [
+                    x for x in self.all_tickets[self.df_count:]
+                    if x[1] == "clear"]
+
+                if self.cl_count != len(self.cl_tickets):
+                    self.showCurrentTicket(self.cl_tickets[self.cl_count])
+                    self.called.append(self.all_tickets.index(
+                        self.cl_tickets[self.cl_count]))
+
+                else:
+                    self.label_notif.setText(
+                        f"* Clearance tickets done. "
+                        f"Processing default tickets. *"
+                    )
+
+                    self.curr_prio = 0
+
+                self.cl_count += 1
+
+        else:
+            self.label_notif.setText("* All tickets are called *")
 
 
 def main():
